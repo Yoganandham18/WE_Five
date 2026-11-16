@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Consistency Club</title>
+  <meta name="description" content="Small habits. Daily progress. Better versions of ourselves.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" /></svg>
+        </div>
+        <div>
+          <div class="brand-name">The Consistency Club</div>
+          <div class="brand-sub">5 friends · 5 habits</div>
+        </div>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="#overview" data-view="overview" class="nav-item"><span data-icon="home"></span>Overview</a>
+        <a href="#daily" data-view="daily" class="nav-item"><span data-icon="edit"></span>Daily Habits</a>
+        <a href="#leaderboard" data-view="leaderboard" class="nav-item"><span data-icon="trophy"></span>Group Leaderboard</a>
+        <a href="#analytics" data-view="analytics" class="nav-item"><span data-icon="chart"></span>Habit Analytics</a>
+        <a href="#learning" data-view="learning" class="nav-item"><span data-icon="book"></span>Learning Tracker</a>
+        <a href="#timeline" data-view="timeline" class="nav-item"><span data-icon="timeline"></span>Learning Timeline</a>
+        <a href="#members" data-view="members" class="nav-item"><span data-icon="users"></span>Members</a>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="quote-mini" id="sidebarQuote">Consistency beats motivation.</div>
+        <div class="shared-note"><span data-icon="globe"></span>Shared board — everyone sees every record.</div>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- ===================== MAIN ===================== -->
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu"><span data-icon="menu"></span></button>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-right">
+          <span class="today-chip" id="todayChip"><span data-icon="calendar"></span><span id="todayText">—</span></span>
+          <button class="icon-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh"><span data-icon="refresh"></span></button>
+        </div>
+      </header>
+
+      <main class="content" id="content">
+        <!-- Setup notice (external hosting without API URL) -->
+        <section class="view" id="view-setup" hidden>
+          <div class="card setup-card">
+            <h2>Connect the backend</h2>
+            <p>This page is not served by Google Apps Script and no Web App URL is configured yet.</p>
+            <ol>
+              <li>Deploy <code>Code.gs</code> as a Web App (see README).</li>
+              <li>Open <code>script.js</code> and set <code>CONFIG.API_URL</code> to the Web App URL ending in <code>/exec</code>.</li>
+              <li>Reload this page.</li>
+            </ol>
+            <label class="field"><span>Or paste the Web App URL for this browser only</span>
+              <input type="url" id="setupUrl" placeholder="https://script.google.com/macros/s/…/exec"></label>
+            <button class="btn primary" id="setupSave">Connect</button>
+          </div>
+        </section>
+
+        <!-- 1. OVERVIEW -->
+        <section class="view" id="view-overview" hidden>
+          <div class="hero">
+            <div>
+              <h1 class="hero-title">THE CONSISTENCY CLUB</h1>
+              <p class="hero-tag">Small habits. Daily progress. Better versions of ourselves.</p>
+            </div>
+            <div class="hero-controls">
+              <label class="field inline"><span>Viewing</span><input type="date" id="ovDate"></label>
+              <a class="btn primary" href="#daily"><span data-icon="plus"></span>Log today</a>
+            </div>
+          </div>
+          <div class="quote-bar" id="quoteBar" aria-live="polite"><span data-icon="spark"></span><span id="quoteText"></span></div>
+          <div class="stat-grid" id="ovStats"></div>
+          <h2 class="section-title">Members <span class="muted small">— tap a card for the personal dashboard</span></h2>
+          <div class="member-grid" id="ovMembers"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Daily leaderboard</h3><a href="#leaderboard" class="link">Full leaderboard →</a></div>
+              <div id="ovLeaderboard"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Weekly group report</h3><span class="muted small" id="ovWeekLabel"></span></div>
+              <div id="ovWeekly"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Recent activity</h3></div>
+            <div id="ovActivity"></div>
+          </div>
+        </section>
+
+        <!-- 2. DAILY HABITS -->
+        <section class="view" id="view-daily" hidden>
+          <div class="page-head">
+            <div>
+              <h1>Daily Habits</h1>
+              <p class="muted">Log in any order — morning, afternoon or evening. Only the sections you change are saved.</p>
+            </div>
+          </div>
+          <div class="card entry-head">
+            <label class="field"><span>Member</span><select id="dfMember"></select></label>
+            <label class="field"><span>Date</span><input type="date" id="dfDate"></label>
+            <div class="entry-score" id="dfScore"></div>
+          </div>
+          <div id="dfBody" class="habit-forms"></div>
+          <div class="save-bar" id="saveBar">
+            <div class="save-info" id="saveInfo">No changes yet</div>
+            <button class="btn ghost" id="dfReset">Discard changes</button>
+            <button class="btn primary" id="dfSave"><span data-icon="check"></span>Save</button>
+          </div>
+        </section>
+
+        <!-- 3. LEADERBOARD -->
+        <section class="view" id="view-leaderboard" hidden>
+          <div class="page-head">
+            <div><h1>Group Leaderboard</h1><p class="muted">20 points per completed habit. Unlogged habits are pending, not failures.</p></div>
+          </div>
+          <div class="filters">
+            <div class="seg" id="lbPeriod" role="tablist">
+              <button data-v="daily" class="active">Daily</button><button data-v="weekly">Weekly</button><button data-v="monthly">Monthly</button>
+            </div>
+            <label class="field inline"><span>Date</span><input type="date" id="lbDate"></label>
+            <span class="muted small" id="lbRange"></span>
+          </div>
+          <div class="card" id="lbTable"></div>
+          <div class="card points-card">
+            <h3>Scoring</h3>
+            <div class="points-grid" id="pointsGrid"></div>
+          </div>
+        </section>
+
+        <!-- 4. ANALYTICS -->
+        <section class="view" id="view-analytics" hidden>
+          <div class="page-head"><div><h1>Habit Analytics</h1><p class="muted">Compare all members or focus on one. All numbers come straight from the sheet.</p></div></div>
+          <div class="filters">
+            <div class="seg" id="anPeriod">
+              <button data-v="daily">Daily</button><button data-v="weekly" class="active">Weekly</button><button data-v="monthly">Monthly</button>
+            </div>
+            <label class="field inline"><span>Date</span><input type="date" id="anDate"></label>
+            <label class="field inline"><span>Member</span><select id="anMember"></select></label>
+            <span class="muted small" id="anRange"></span>
+          </div>
+          <div class="chart-grid" id="anCharts"></div>
+          <div class="card"><div class="card-head"><h3>Data table</h3></div><div id="anTable"></div></div>
+        </section>
+
+        <!-- 5. LEARNING TRACKER -->
+        <section class="view" id="view-learning" hidden>
+          <div class="page-head">
+            <div><h1>Learning Tracker</h1><p class="muted">Topics, sessions, switching and completions — one active topic at a time.</p></div>
+            <div class="head-actions">
+              <label class="field inline"><span>Member</span><select id="ltMember"></select></label>
+            </div>
+          </div>
+          <div id="ltBody"></div>
+        </section>
+
+        <!-- 6. LEARNING TIMELINE -->
+        <section class="view" id="view-timeline" hidden>
+          <div class="page-head">
+            <div><h1>Learning Timeline</h1><p class="muted">Every topic each member has started, paused, switched or completed.</p></div>
+            <div class="head-actions"><label class="field inline"><span>Member</span><select id="tlMember"></select></label></div>
+          </div>
+          <div id="tlBody" class="timelines"></div>
+        </section>
+
+        <!-- 7. MEMBERS -->
+        <section class="view" id="view-members" hidden>
+          <div class="page-head"><div><h1>Members</h1><p class="muted">Anyone can view or log for any member. There are no logins.</p></div></div>
+          <div class="member-grid" id="mbGrid"></div>
+          <div class="card add-member">
+            <h3>Add a member</h3>
+            <form id="addMemberForm" class="row-form">
+              <label class="field"><span>Name</span><input id="newMemberName" maxlength="40" required placeholder="e.g. Arjun"></label>
+              <button class="btn primary" type="submit"><span data-icon="plus"></span>Add member</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- PERSONAL DASHBOARD -->
+        <section class="view" id="view-member" hidden>
+          <div id="pdBody"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal & toasts -->
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><h3 id="modalTitle"></h3><button class="icon-btn" id="modalClose" aria-label="Close"><span data-icon="x"></span></button></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
